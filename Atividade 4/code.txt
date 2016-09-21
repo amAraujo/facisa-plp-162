@@ -1,0 +1,4 @@
+Program CALCULA_AREA;
+var NOME : string;
+begin readln (A); end.
+2 + 3;

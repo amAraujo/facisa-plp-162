@@ -1,0 +1,78 @@
+PARSER_BEGIN(comp)
+class comp 
+{
+	public static void main( String[] args )throws ParseException
+	{
+		try
+		{
+			comp analizador = new comp( System.in ) ;
+			analizador.Programa() ; 
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("Analizador: erro durante o processo de análise.");
+		}
+	}
+}
+PARSER_END(comp)
+
+SKIP : 
+{ 
+	" "|"\n" | "\r" | "\r\n" 
+}
+TOKEN:
+{
+	  <INSTRUCOES:"begin"|"end"|"if"|"then" >{System.out.println("INSTRUCAO -> "+image);}
+	| <FUNCOES:"random"|"cos"|"abs"|"odd"|"length"|"copy"|"UpCase"|"trunc"|"int"|"sizeof" >{System.out.println("FUNCAO -> "+image);}
+	| <COMANDOS:"readln"|"writeln"|"write"|"read">{System.out.println("COMANDO -> "+image);}
+}
+TOKEN:
+{
+	  <TIPOS:"integer"|"shortint"|"longint"|"byte"|"word"|"real"|"single"|"double"|"extended"|"comp"|"boolean"|"char"|"string">{System.out.println("TIPO -> "+image);}
+	| <BOOLEANAS:"TRUE"|"FALSE" >{System.out.println("BOOLEAN -> "+image);}
+	| <NUMEROS : (["0"-"9"])+ > {System.out.print("NUMERO "+image+"\r\n");}
+	| <IDENTIFICADOR : "uses"|"label"|"const"|"type"|"var"|"procedure"|"function"> {System.out.print("IDENTIFICADOR -> "+image+"\r\n");}
+	| <IDENTIFICADORES : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>{System.out.print("IDENTIFICADOR -> "+image+"\r\n");}
+}
+TOKEN : 
+{ 
+	  <OPERADORES:"+"|"-"|"*"|"/"|"not"|"div"|"mod"|"and"|"or"|"="|"<>"|"<"|">"|"<="|">="|":="|"," >{System.out.println("OPERADOR -> "+image);}
+}
+TOKEN:
+{
+	  <MAIN: "public static void Main() ">{System.out.println("MAIN -> "+image);}
+	| <PROGRAMA: "Program " > {System.out.println("PROGRAMA -> "+image);}
+}
+TOKEN:
+{
+      <LPAREN: "(" >{System.out.println("LPAREN -> "+image);}
+	| <RPAREN: ")" >{System.out.println("RPAREN -> "+image);}
+	| <LCHAVE: "{" >{System.out.println("LCHAVE -> "+image);}
+	| <RCHAVE: "}" >{System.out.println("RCHAVE -> "+image);}
+	| <SIMBOLOS: ";"|":"|"." >{System.out.println("SIMBOLO -> "+image);}
+}
+
+void Programa() :
+{}
+{
+	<PROGRAMA><IDENTIFICADORES><SIMBOLOS>areadedeclaracao()<EOF>
+}
+
+void areadedeclaracao() :
+{}
+{
+	<IDENTIFICADOR><IDENTIFICADORES><SIMBOLOS><TIPOS><SIMBOLOS>corpodoprograma()
+}
+
+void corpodoprograma() :
+{}
+{
+	<INSTRUCOES><COMANDOS><LPAREN><IDENTIFICADORES><RPAREN><SIMBOLOS><INSTRUCOES><SIMBOLOS>expressaoSimples()
+}
+
+void expressaoSimples() :
+{}
+{
+	<NUMEROS><OPERADORES><NUMEROS><SIMBOLOS>
+}
