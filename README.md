@@ -8,3 +8,7 @@ Uma análise sobre o problema do diamante (Herança Múltipla).
 ##Atividade Dois
 
 Um resumo sobre o artigo "Se linguagens de programação fossem religiões".
+
+##Atividade quatro
+
+Criar análise léxica com base na linguagem de programação pascal.
