@@ -1,0 +1,279 @@
+/* opções */
+options {
+	IGNORE_CASE = true;
+}
+
+PARSER_BEGIN(comp)
+class comp 
+{
+	public static void main( String[] args )throws ParseException
+	{
+		try
+		{
+			comp analizador = new comp( System.in ) ;
+			analizador.Program() ; 
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("Analizador: erro durante o processo de análise.");
+		}
+	}
+}
+PARSER_END(comp)
+
+SKIP : 
+{ 
+	" "|"\n" | "\r" | "\r\n" 
+}
+TOKEN:
+{
+	  <INSTRUCOES:"end"|"begin"|"if"|"while" >{System.out.println("INSTRUCAO -> "+image);}
+	| <INSTRUCAO_THEN:"then" >{System.out.println("INSTRUCAO_THEN -> "+image);}
+	| <INSTRUCAO_DO:"do" >{System.out.println("INSTRUCAO_DO -> "+image);}
+	| <FUNCOES:"random"|"cos"|"abs"|"odd"|"length"|"copy"|"UpCase"|"trunc"|"int"|"sizeof" >{System.out.println("FUNCAO -> "+image);}
+	| <COMANDOS:"readln"|"writeln"|"write"|"read">{System.out.println("COMANDO -> "+image);}
+}
+TOKEN:
+{
+	  <TIPOS: "integer"|"shortint"|"longint"|"byte"|"word"|"real"|"single"|"double"|"extended"|"comp"|"boolean"|"char"|"string">{System.out.println("TIPO -> "+image);}
+	| <BOOLEANAS:"TRUE"|"FALSE" >{System.out.println("BOOLEAN -> "+image);}
+	| <NUMEROS : (["0"-"9"])+ > {System.out.print("NUMERO "+image+"\r\n");}
+	| <SIMBOLOS_ESPECIAIS : "of"|"array"|"uses"|"label"|"const"|"type"|"var"|"procedure"|"function"> {System.out.print("SIMBOLOS_ESPECIAIS -> "+image+"\r\n");}
+	| <IDENTIFICADORES : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>{System.out.print("IDENTIFICADOR -> "+image+"\r\n");}
+}
+TOKEN : 
+{ 
+	  <OPERADORES: "+"|"-"|"*"|"/"|"not"|"div"|"mod"|"and"|"or"|"="|"<>"|"<"|">"|"<="|">="|":=" >{System.out.println("OPERADOR -> "+image);}
+}
+TOKEN:
+{
+	  <MAIN: "public static void Main() ">{System.out.println("MAIN -> "+image);}
+	| <PROGRAMA: "Program " > {System.out.println("PROGRAMA -> "+image);}
+}
+TOKEN:
+{
+      <LPAREN: "(" >{System.out.println("LPAREN -> "+image);}
+	| <RPAREN: ")" >{System.out.println("RPAREN -> "+image);}
+	| <LCHAVE: "{" >{System.out.println("LCHAVE -> "+image);}
+	| <RCHAVE: "}" >{System.out.println("RCHAVE -> "+image);}
+	| <LCOLCHETE: "[" >{System.out.println("LCOLCHETE -> "+image);}
+	| <RCOLCHETE: "]" >{System.out.println("RCOLCHETE -> "+image);}
+	| <SIMBOLOS: ";"|":"|"."|"," >{System.out.println("SIMBOLO -> "+image);}
+}
+
+void Program() :
+{}
+{
+	<PROGRAMA><IDENTIFICADORES><SIMBOLOS>block()
+}
+
+void block() :
+{}
+{
+	variableDeclarationPart()statementPart()
+}
+
+void variableDeclarationPart() :
+{}
+{
+	<SIMBOLOS_ESPECIAIS>variableDeclaration()<SIMBOLOS><LCHAVE>variableDeclaration()<SIMBOLOS><RCHAVE>
+}
+
+void variableDeclaration() :
+{}
+{
+	<IDENTIFICADORES><LCHAVE><SIMBOLOS><IDENTIFICADORES><RCHAVE><SIMBOLOS>type()
+}
+
+void type() :
+{}
+{
+	simpleType() | arrayType()
+}
+
+void arrayType() :
+{}
+{
+	<SIMBOLOS_ESPECIAIS><LCOLCHETE>indexRange()<RCOLCHETE><SIMBOLOS_ESPECIAIS><SIMBOLOS_ESPECIAIS>
+}
+
+void indexRange() :
+{}
+{
+	<NUMEROS>
+}
+
+void simpleType() :
+{}
+{
+	<TIPOS>
+}
+
+void typeIdentifier() :
+{}
+{
+	<IDENTIFICADORES>
+}
+
+void statementPart() :
+{}
+{
+	compoundStatement()
+}
+
+void compoundStatement() :
+{}
+{
+	<INSTRUCOES>statement()<LCHAVE><SIMBOLOS>statement()<RCHAVE><INSTRUCOES>
+}
+
+void statement() :
+{}
+{
+	simpleStatement() | structuredStatement()
+}
+
+void simpleStatement() :
+{}
+{
+	assignment() | readStatement()
+}
+
+void structuredStatement() :
+{}
+{
+	compoundStatement()
+}
+
+void ifStatement() :
+{}
+{
+	<INSTRUCOES>expression()<INSTRUCAO_THEN>statement()
+}
+
+void whileStatement() :
+{}
+{
+	<INSTRUCOES>expression()<INSTRUCAO_DO>statement()
+}
+
+void readStatement() :
+{}
+{
+	<COMANDOS><LPAREN>variable()<LCHAVE><SIMBOLOS>variable()<RCHAVE><RPAREN>
+}
+
+void writeStatement() :
+{}
+{
+	<COMANDOS><LPAREN>variable()<RCHAVE><SIMBOLOS>variable()<RCHAVE><RPAREN>
+}
+
+void assignment() :
+{}
+{
+	variable()<OPERADORES>expression()
+}
+
+void variable() :
+{}
+{
+	entireVariable()
+}
+
+void entireVariable() :
+{}
+{
+	variableIdentifier()
+}
+
+void variableIdentifier() :
+{}
+{
+	<IDENTIFICADORES>
+}
+
+void indexedVariable() :
+{}
+{
+	arrayVariable()<LCOLCHETE>expression()<RCOLCHETE>
+}
+
+void arrayVariable() :
+{}
+{
+	entireVariable()
+}
+
+void expression() :
+{}
+{
+	simpleExpression()
+}
+
+void relationalOperator() :
+{}
+{
+	<OPERADORES>
+}
+
+void simpleExpression() :
+{}
+{
+	sing()term()<LCHAVE>addingOperator()term()<RCHAVE>
+}
+
+void sing() :
+{}
+{
+	<OPERADORES>
+}
+
+void addingOperator() :
+{}
+{
+	<OPERADORES>
+}
+
+void term() :
+{}
+{
+	factor()<LCHAVE>multiplyingOperator()factor()<RCHAVE>
+}
+
+void factor() :
+{}
+{
+	variable()
+}
+
+void multiplyingOperator() :
+{}
+{
+	<OPERADORES>
+}
+
+void constant() :
+{}
+{
+	integerConstante()
+}
+
+void integerConstante() :
+{}
+{
+	<IDENTIFICADORES>
+}
+
+void characterConstant() :
+{}
+{
+	lettetOrDigit()
+}
+
+void lettetOrDigit() :
+{}
+{
+	<IDENTIFICADORES> | <NUMEROS>
+}
